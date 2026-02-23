@@ -3,160 +3,267 @@
 @section('title', 'Peminjaman')
 
 @section('content')
-    <h2 class="text-2xl font-bold text-gray-800 mb-6">Peminjaman Alat</h2>
 
-    <!-- Success Message -->
+    {{-- ══ PAGE HEADER ══ --}}
+    <div class="mb-8">
+        <p class="font-sans text-[0.58rem] font-semibold tracking-[0.35em] uppercase text-label mb-1">
+            Transaksi
+        </p>
+        <h2 class="font-serif text-ink text-3xl font-normal leading-none">
+            Peminjaman Alat
+        </h2>
+        <div class="mt-3 h-px w-10 bg-rule"></div>
+    </div>
+
+    {{-- ══ SUCCESS ALERT ══ --}}
     @if(session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 flex justify-between items-center">
-            <span>{{ session('success') }}</span>
-            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900">
-                <i class="fas fa-times"></i>
+        <div class="flex items-center justify-between border-l-2 border-espresso bg-cream px-4 py-3 mb-6">
+            <span class="font-sans text-[0.75rem] tracking-wide text-ink">{{ session('success') }}</span>
+            <button onclick="this.parentElement.remove()" class="text-label hover:text-ink transition-colors ml-4">
+                <i class="fas fa-times text-xs"></i>
             </button>
         </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Left: Form Peminjaman -->
-        <div>
-            <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-plus-circle text-blue-500 mr-2"></i>
-                    Ajukan Peminjaman
-                </h3>
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
-                <form action="{{ route('peminjaman.store') }}" method="POST" id="peminjamanForm">
+        {{-- ══ KIRI: FORM PEMINJAMAN ══ --}}
+        <div class="lg:col-span-2">
+            <div class="bg-paper border border-rule">
+
+                {{-- Form Header --}}
+                <div class="px-6 py-5 border-b border-rule">
+                    <p class="font-sans text-[0.52rem] font-semibold tracking-[0.3em] uppercase text-label mb-1">
+                        Formulir
+                    </p>
+                    <h3 class="font-serif text-ink text-xl font-normal leading-none">
+                        Ajukan Peminjaman
+                    </h3>
+                </div>
+
+                {{-- Form Body --}}
+                <form action="{{ route('peminjaman.store') }}" method="POST" id="peminjamanForm" class="px-6 py-6 space-y-6">
                     @csrf
-
-                    <!-- Hidden user_id (auto dari login) -->
                     <input type="hidden" name="user_id" value="{{ auth()->id() }}">
 
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Alat <span class="text-red-600">*</span></label>
-                        <select name="alat_id" id="alat_select" required 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Pilih Alat</option>
-                            @foreach($alats as $alat)
-                                <option value="{{ $alat->alat_id }}" data-max="{{ $alat->stok_tersedia }}" data-nama="{{ $alat->nama_alat }}">
-                                    {{ $alat->nama_alat }} (Tersedia: {{ $alat->stok_tersedia }})
-                                </option>
-                            @endforeach
-                        </select>
+                    {{-- Pilih Alat --}}
+                    <div>
+                        <label class="block font-sans text-[0.55rem] font-semibold tracking-[0.28em] uppercase text-label mb-2.5">
+                            Alat <span class="text-espresso">*</span>
+                        </label>
+                        <div class="relative">
+                            <select
+                                name="alat_id" id="alat_select" required
+                                class="w-full appearance-none bg-cream border border-rule px-3 py-2.5 font-sans text-[0.82rem] text-ink outline-none focus:border-ink transition-colors duration-200 cursor-pointer"
+                            >
+                                <option value="">Pilih Alat</option>
+                                @foreach($alats as $alat)
+                                    <option value="{{ $alat->alat_id }}"
+                                        data-max="{{ $alat->stok_tersedia }}"
+                                        data-nama="{{ $alat->nama_alat }}">
+                                        {{ $alat->nama_alat }} (Tersedia: {{ $alat->stok_tersedia }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-ghost text-[0.55rem] pointer-events-none"></i>
+                        </div>
                         @error('alat_id')
-                            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                            <p class="font-sans text-[0.65rem] text-espresso mt-1.5">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah <span class="text-red-600">*</span></label>
-                        <input type="number" id="jumlah_input" name="jumlah" min="1" required 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Jumlah yang dipinjam">
-                        <p id="stok_info" class="text-xs text-gray-500 mt-1"></p>
+                    {{-- Jumlah --}}
+                    <div class="relative">
+                        <label class="block font-sans text-[0.55rem] font-semibold tracking-[0.28em] uppercase text-label mb-2.5">
+                            Jumlah <span class="text-espresso">*</span>
+                        </label>
+                        <input
+                            type="number" id="jumlah_input" name="jumlah" min="1" required
+                            placeholder="Jumlah unit yang dipinjam"
+                            class="peer w-full bg-transparent border-b border-rule pb-2.5 pt-1 font-sans text-[0.85rem] text-ink outline-none placeholder-ghost/60 transition-colors duration-200 focus:border-ink"
+                        >
+                        <span class="absolute bottom-0 left-0 h-px w-0 bg-ink transition-all duration-300 peer-focus:w-full"></span>
+                        <p id="stok_info" class="font-sans text-[0.62rem] text-label mt-1.5"></p>
                         @error('jumlah')
-                            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
+                            <p class="font-sans text-[0.65rem] text-espresso mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Peminjaman <span class="text-red-600">*</span></label>
-                        <input type="date" name="tanggal_peminjaman" required 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        @error('tanggal_peminjaman')
-                            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                    {{-- Tanggal Peminjaman & Kembali --}}
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="relative">
+                            <label class="block font-sans text-[0.55rem] font-semibold tracking-[0.28em] uppercase text-label mb-2.5">
+                                Tgl. Pinjam <span class="text-espresso">*</span>
+                            </label>
+                            <input
+                                type="date" name="tanggal_peminjaman" required
+                                class="peer w-full bg-transparent border-b border-rule pb-2.5 pt-1 font-sans text-[0.82rem] text-ink outline-none transition-colors duration-200 focus:border-ink"
+                            >
+                            <span class="absolute bottom-0 left-0 h-px w-0 bg-ink transition-all duration-300 peer-focus:w-full"></span>
+                            @error('tanggal_peminjaman')
+                                <p class="font-sans text-[0.65rem] text-espresso mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="relative">
+                            <label class="block font-sans text-[0.55rem] font-semibold tracking-[0.28em] uppercase text-label mb-2.5">
+                                Tgl. Kembali <span class="text-espresso">*</span>
+                            </label>
+                            <input
+                                type="date" name="tanggal_kembali_rencana" required
+                                class="peer w-full bg-transparent border-b border-rule pb-2.5 pt-1 font-sans text-[0.82rem] text-ink outline-none transition-colors duration-200 focus:border-ink"
+                            >
+                            <span class="absolute bottom-0 left-0 h-px w-0 bg-ink transition-all duration-300 peer-focus:w-full"></span>
+                            @error('tanggal_kembali_rencana')
+                                <p class="font-sans text-[0.65rem] text-espresso mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Kembali Rencana <span class="text-red-600">*</span></label>
-                        <input type="date" name="tanggal_kembali_rencana" required 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        @error('tanggal_kembali_rencana')
-                            <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                    {{-- Tujuan --}}
+                    <div>
+                        <label class="block font-sans text-[0.55rem] font-semibold tracking-[0.28em] uppercase text-label mb-2.5">
+                            Tujuan Peminjaman
+                        </label>
+                        <textarea
+                            name="tujuan_peminjaman" rows="3"
+                            placeholder="Untuk keperluan..."
+                            class="w-full bg-cream border border-rule px-3 py-2.5 font-sans text-[0.82rem] text-ink outline-none placeholder-ghost/60 focus:border-ink transition-colors duration-200 resize-none"
+                        ></textarea>
                     </div>
 
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Tujuan Peminjaman</label>
-                        <textarea name="tujuan_peminjaman" rows="3" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Untuk keperluan..."></textarea>
-                    </div>
-
-                    <button type="submit" 
-                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 rounded-lg transition flex items-center justify-center space-x-2">
-                        <i class="fas fa-send"></i>
+                    {{-- Submit --}}
+                    <button
+                        type="submit"
+                        class="relative w-full overflow-hidden bg-espresso px-6 py-3.5
+                               font-sans text-[0.6rem] font-semibold tracking-[0.25em] uppercase text-paper
+                               flex items-center justify-center gap-2
+                               transition-colors duration-200 hover:bg-ink active:scale-[0.99]
+                               after:content-[''] after:absolute after:inset-0 after:bg-white/[0.06]
+                               after:-translate-x-full after:transition-transform after:duration-300
+                               hover:after:translate-x-0"
+                    >
+                        <i class="fas fa-paper-plane text-xs"></i>
                         <span>Ajukan Peminjaman</span>
                     </button>
+
                 </form>
             </div>
         </div>
 
-        <!-- Right: History Peminjaman -->
-        <div>
-            <div class="bg-white rounded-lg shadow p-6">
-                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                    <i class="fas fa-history text-purple-500 mr-2"></i>
-                    Riwayat Peminjaman
-                </h3>
+        {{-- ══ KANAN: RIWAYAT PEMINJAMAN ══ --}}
+        <div class="lg:col-span-3">
+            <div class="bg-paper border border-rule flex flex-col">
+
+                {{-- Riwayat Header --}}
+                <div class="px-6 py-5 border-b border-rule flex-shrink-0">
+                    <p class="font-sans text-[0.52rem] font-semibold tracking-[0.3em] uppercase text-label mb-1">
+                        Rekam Jejak
+                    </p>
+                    <h3 class="font-serif text-ink text-xl font-normal leading-none">
+                        Riwayat Peminjaman
+                    </h3>
+                </div>
 
                 @if($peminjaman->isEmpty())
-                    <div class="text-center py-8">
-                        <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
-                        <p class="text-gray-500">Belum ada riwayat peminjaman</p>
+                    {{-- Empty State --}}
+                    <div class="flex flex-col items-center justify-center py-16 px-6 text-center">
+                        <div class="w-14 h-14 bg-cream border border-rule flex items-center justify-center mb-4">
+                            <i class="fas fa-inbox text-xl text-ghost"></i>
+                        </div>
+                        <p class="font-serif text-ink text-lg font-normal mb-1">Belum ada riwayat</p>
+                        <p class="font-sans text-[0.7rem] text-label tracking-wide">
+                            Ajukan peminjaman pertama kamu melalui form di samping.
+                        </p>
                     </div>
+
                 @else
-                    <div class="space-y-3 max-h-[600px] overflow-y-auto">
+                    <div class="divide-y divide-rule overflow-y-auto max-h-[600px]">
                         @foreach($peminjaman as $item)
-                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                                <div class="flex justify-between items-start mb-2">
-                                    <div>
-                                        <h4 class="font-semibold text-gray-900">{{ $item->alat->nama_alat }}</h4>
-                                        <p class="text-xs text-gray-500">{{ $item->tanggal_peminjaman->format('d/m/Y') }} - {{ $item->tanggal_kembali_rencana->format('d/m/Y') }}</p>
+                            <div class="px-6 py-5 hover:bg-cream/50 transition-colors duration-150">
+
+                                {{-- Top Row --}}
+                                <div class="flex items-start justify-between gap-4 mb-3">
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-serif text-ink text-base font-normal leading-snug truncate">
+                                            {{ $item->alat->nama_alat }}
+                                        </h4>
+                                        <p class="font-sans text-[0.62rem] text-label tracking-wide mt-0.5">
+                                            {{ $item->tanggal_peminjaman->format('d M Y') }}
+                                            <span class="mx-1 text-ghost">→</span>
+                                            {{ $item->tanggal_kembali_rencana->format('d M Y') }}
+                                        </p>
                                     </div>
-                                    <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                                        @if($item->status == 'disetujui') bg-green-100 text-green-800
-                                        @elseif($item->status == 'menunggu') bg-yellow-100 text-yellow-800
-                                        @elseif($item->status == 'ditolak') bg-red-100 text-red-800
-                                        @elseif($item->status == 'dikembalikan') bg-blue-100 text-blue-800
-                                        @endif">
-                                        {{ ucfirst($item->status) }}
-                                    </span>
+
+                                    {{-- Status Badge --}}
+                                    @if($item->status == 'disetujui')
+                                        <span class="flex-shrink-0 px-2.5 py-1 border border-ink/20 bg-ink/5 font-sans text-[0.55rem] font-semibold tracking-[0.15em] uppercase text-ink">
+                                            Disetujui
+                                        </span>
+                                    @elseif($item->status == 'menunggu')
+                                        <span class="flex-shrink-0 px-2.5 py-1 border border-dim/20 bg-dim/5 font-sans text-[0.55rem] font-semibold tracking-[0.15em] uppercase text-dim">
+                                            Menunggu
+                                        </span>
+                                    @elseif($item->status == 'ditolak')
+                                        <span class="flex-shrink-0 px-2.5 py-1 border border-espresso/20 bg-espresso/5 font-sans text-[0.55rem] font-semibold tracking-[0.15em] uppercase text-espresso">
+                                            Ditolak
+                                        </span>
+                                    @elseif($item->status == 'dikembalikan')
+                                        <span class="flex-shrink-0 px-2.5 py-1 border border-rule bg-cream font-sans text-[0.55rem] font-semibold tracking-[0.15em] uppercase text-label">
+                                            Dikembalikan
+                                        </span>
+                                    @endif
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-2 text-sm text-gray-600 mb-3">
-                                    <div>
-                                        <p class="text-xs text-gray-500">Jumlah</p>
-                                        <p class="font-medium">{{ $item->jumlah }} unit</p>
+                                {{-- Meta Info --}}
+                                <div class="grid grid-cols-2 gap-3 mb-3">
+                                    <div class="bg-cream px-3 py-2">
+                                        <p class="font-sans text-[0.52rem] font-semibold tracking-[0.2em] uppercase text-ghost mb-1">
+                                            Jumlah
+                                        </p>
+                                        <p class="font-sans text-[0.78rem] font-medium text-ink">
+                                            {{ $item->jumlah }} unit
+                                        </p>
                                     </div>
-                                    <div>
-                                        <p class="text-xs text-gray-500">Disetujui oleh</p>
-                                        <p class="font-medium">{{ $item->petugas->username ?? '-' }}</p>
+                                    <div class="bg-cream px-3 py-2">
+                                        <p class="font-sans text-[0.52rem] font-semibold tracking-[0.2em] uppercase text-ghost mb-1">
+                                            Disetujui oleh
+                                        </p>
+                                        <p class="font-sans text-[0.78rem] font-medium text-ink">
+                                            {{ $item->petugas->username ?? '—' }}
+                                        </p>
                                     </div>
                                 </div>
 
+                                {{-- Tujuan --}}
                                 @if($item->tujuan_peminjaman)
-                                    <p class="text-xs text-gray-600 mb-2">
-                                        <span class="font-medium">Tujuan:</span> {{ $item->tujuan_peminjaman }}
+                                    <p class="font-sans text-[0.7rem] text-label leading-relaxed mb-2">
+                                        <span class="font-semibold text-dim">Tujuan:</span>
+                                        {{ $item->tujuan_peminjaman }}
                                     </p>
                                 @endif
 
+                                {{-- Status Note --}}
                                 @if($item->status == 'menunggu')
-                                    <p class="text-xs text-blue-600 flex items-center">
-                                        <i class="fas fa-clock mr-1"></i>
+                                    <p class="font-sans text-[0.62rem] text-label flex items-center gap-1.5 mt-2">
+                                        <i class="fas fa-clock text-ghost text-[0.6rem]"></i>
                                         Menunggu persetujuan petugas
                                     </p>
                                 @elseif($item->status == 'ditolak')
-                                    <p class="text-xs text-red-600 flex items-center">
-                                        <i class="fas fa-times mr-1"></i>
+                                    <p class="font-sans text-[0.62rem] text-espresso flex items-center gap-1.5 mt-2">
+                                        <i class="fas fa-times text-[0.6rem]"></i>
                                         Peminjaman ditolak
                                     </p>
                                 @endif
+
                             </div>
                         @endforeach
                     </div>
                 @endif
+
             </div>
         </div>
+
     </div>
 
     <script>
@@ -165,14 +272,15 @@
             const maxStok = selected.getAttribute('data-max');
             const jumlahInput = document.getElementById('jumlah_input');
             const stokInfo = document.getElementById('stok_info');
-            
+
             if (maxStok) {
                 jumlahInput.max = maxStok;
-                stokInfo.textContent = `Maksimal: ${maxStok} unit`;
+                stokInfo.textContent = 'Maksimal: ' + maxStok + ' unit tersedia';
             } else {
                 jumlahInput.max = '';
                 stokInfo.textContent = '';
             }
         });
     </script>
+
 @endsection
