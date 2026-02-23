@@ -1,70 +1,93 @@
-<header class="bg-paper border-b border-rule shadow-sm">
-    <div class="mx-auto px-6 py-3.5 flex justify-between items-center">
+<header class="bg-espresso border-b border-white/[0.07] relative">
 
-        {{-- Brand --}}
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-espresso flex items-center justify-center">
-                <i class="fas fa-wrench text-paper text-sm"></i>
+    {{-- Subtle top accent line --}}
+    <div class="h-[1px] w-full bg-gradient-to-r from-transparent via-rule/30 to-transparent"></div>
+
+    <div class="mx-auto px-6 lg:px-8 flex items-stretch h-[70px]">
+
+        {{-- ── BRAND ── --}}
+        <div class="flex items-center gap-4 flex-shrink-0">
+            <div class="w-7 h-7 border border-white/20 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-wrench text-paper text-[0.55rem]"></i>
             </div>
             <div>
-                <h1 class="font-serif text-ink text-lg font-normal leading-none tracking-wide">
-                    Sistem Peminjaman Alat
+                <h1 class="font-serif text-paper text-[1rem] font-normal leading-none tracking-[0.15em] uppercase">
+                    Sistem Peminjaman
                 </h1>
-                <p class="font-sans text-[0.52rem] tracking-[0.25em] uppercase text-label mt-0.5">
+                <p class="font-sans text-[0.43rem] tracking-[0.38em] uppercase text-paper/35 mt-[3px]">
                     Platform Manajemen
                 </p>
             </div>
         </div>
 
-        {{-- Right Section --}}
-        <div class="flex items-center gap-3">
+        {{-- ── SPACER ── --}}
+        <div class="flex-1"></div>
 
-            {{-- User Card --}}
+        {{-- ── RIGHT SECTION ── --}}
+        <div class="flex items-stretch gap-0">
+
             @php
-                $level   = auth()->user()->level ?? 'admin';
-                $icon    = match(strtolower($level)) {
-                    'admin'     => 'user-shield',
-                    'petugas'   => 'user-cog',
-                    'peminjam'  => 'user',
-                    default     => 'user',
+                $level = auth()->user()->level ?? 'admin';
+                $icon  = match(strtolower($level)) {
+                    'admin'    => 'user-shield',
+                    'petugas'  => 'user-cog',
+                    'peminjam' => 'user',
+                    default    => 'user',
+                };
+                $levelBadge = match(strtolower($level)) {
+                    'admin'    => 'Admin',
+                    'petugas'  => 'Petugas',
+                    'peminjam' => 'Peminjam',
+                    default    => ucfirst($level),
                 };
             @endphp
 
-            <div class="flex items-center gap-3 border border-rule bg-cream px-4 py-2">
-                <div class="w-8 h-8 bg-espresso flex items-center justify-center flex-shrink-0">
-                    <i class="fas fa-{{ $icon }} text-paper text-xs"></i>
+            {{-- ── USER IDENTITY ── --}}
+            <div class="flex items-center gap-3.5 px-6 border-l border-white/[0.08]">
+                <div class="relative flex-shrink-0">
+                    <div class="w-8 h-8 bg-white/[0.08] border border-white/15 flex items-center justify-center">
+                        <i class="fas fa-{{ $icon }} text-paper/70 text-[0.58rem]"></i>
+                    </div>
+                    <span class="absolute -bottom-0.5 -right-0.5 w-[7px] h-[7px] bg-emerald-400 border border-espresso rounded-full"></span>
                 </div>
-                <div>
-                    <p class="font-sans text-[0.78rem] font-semibold text-ink leading-tight">
-                        {{ auth()->user()->username ?? 'user' }}
+                <div class="hidden sm:block">
+                    <p class="font-sans text-[0.75rem] font-semibold text-paper leading-none">
+                        {{ auth()->user()->username ?? 'Pengguna' }}
                     </p>
-                    <p class="font-sans text-[0.6rem] tracking-[0.15em] uppercase text-label leading-tight">
-                        {{ $level }}
-                    </p>
+                    <div class="flex items-center gap-1.5 mt-[4px]">
+                        <span class="inline-block w-1 h-1 rounded-full
+                            {{ strtolower($level) === 'admin'   ? 'bg-amber-400'  :
+                               (strtolower($level) === 'petugas' ? 'bg-sky-400' : 'bg-emerald-400') }}">
+                        </span>
+                        <p class="font-sans text-[0.48rem] tracking-[0.22em] uppercase text-paper/40 leading-none">
+                            {{ $levelBadge }}
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            {{-- Logout --}}
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button
-                    type="submit"
-                    class="
-                        relative overflow-hidden border border-espresso bg-espresso
-                        px-5 py-2.5 font-sans text-[0.62rem] font-semibold
-                        tracking-[0.2em] uppercase text-paper
-                        flex items-center gap-2
-                        transition-colors duration-200 hover:bg-ink active:scale-[0.99]
-                        after:content-[''] after:absolute after:inset-0 after:bg-white/[0.06]
-                        after:-translate-x-full after:transition-transform after:duration-300
-                        hover:after:translate-x-0
-                    "
-                >
-                    <i class="fas fa-sign-out-alt text-xs"></i>
-                    <span>Keluar</span>
-                </button>
-            </form>
+            {{-- ── DIVIDER ── --}}
+            <div class="w-px bg-white/[0.08] my-3.5 ml-4"></div>
+
+            {{-- ── LOGOUT BUTTON ── --}}
+            <div class="flex items-center pl-4">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button
+                        type="submit"
+                        class="flex items-center gap-2.5 border border-white/20 px-4 py-2
+                               font-sans text-[0.58rem] font-semibold tracking-[0.22em] uppercase text-paper/70
+                               hover:bg-white/[0.08] hover:text-paper hover:border-white/35
+                               active:scale-[0.98] transition-all duration-150 group"
+                    >
+                        <i class="fas fa-right-from-bracket text-[0.6rem] group-hover:translate-x-0.5 transition-transform duration-200"></i>
+                        <span>Keluar</span>
+                    </button>
+                </form>
+            </div>
 
         </div>
+
     </div>
+
 </header>
