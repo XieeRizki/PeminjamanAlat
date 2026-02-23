@@ -3,93 +3,175 @@
 @section('title', 'Kategori Alat')
 
 @section('content')
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Kategori Alat</h2>
-        <button onclick="openModal()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition">
-            <i class="fas fa-plus"></i>
+
+    {{-- ══ PAGE HEADER ══ --}}
+    <div class="flex items-end justify-between mb-8">
+        <div>
+            <p class="font-sans text-[0.58rem] font-semibold tracking-[0.35em] uppercase text-label mb-1">
+                Administrasi
+            </p>
+            <h2 class="font-serif text-ink text-3xl font-normal leading-none">
+                Kategori Alat
+            </h2>
+            <div class="mt-3 h-px w-10 bg-rule"></div>
+        </div>
+
+        <button
+            onclick="openModal()"
+            class="relative overflow-hidden flex items-center gap-2 bg-espresso px-5 py-3
+                   font-sans text-[0.62rem] font-semibold tracking-[0.2em] uppercase text-paper
+                   transition-colors duration-200 hover:bg-ink active:scale-[0.99]
+                   after:content-[''] after:absolute after:inset-0 after:bg-white/[0.06]
+                   after:-translate-x-full after:transition-transform after:duration-300
+                   hover:after:translate-x-0"
+        >
+            <i class="fas fa-plus text-xs"></i>
             <span>Tambah Kategori</span>
         </button>
     </div>
 
-    <!-- Success Message -->
+    {{-- ══ SUCCESS ALERT ══ --}}
     @if(session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 flex justify-between items-center">
-            <span>{{ session('success') }}</span>
-            <button onclick="this.parentElement.remove()" class="text-green-700 hover:text-green-900">
-                <i class="fas fa-times"></i>
+        <div class="flex items-center justify-between border-l-2 border-espresso bg-cream px-4 py-3 mb-6">
+            <span class="font-sans text-[0.75rem] tracking-wide text-ink">{{ session('success') }}</span>
+            <button onclick="this.parentElement.remove()" class="text-label hover:text-ink transition-colors ml-4">
+                <i class="fas fa-times text-xs"></i>
             </button>
         </div>
     @endif
 
-    <!-- Card Grid -->
+    {{-- ══ CARD GRID ══ --}}
     @if(count($kategori) > 0)
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach($kategori as $item)
-                <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">{{ $item->nama_kategori }}</h3>
-                    <p class="text-gray-600 text-sm mb-4">{{ $item->deskripsi }}</p>
-                    <div class="flex space-x-3 text-sm">
-                        <button onclick="editKategori({{ $item->kategori_id }}, '{{ addslashes($item->nama_kategori) }}', '{{ addslashes($item->deskripsi) }}')" class="text-blue-600 hover:text-blue-900 font-medium">
-                            Edit
+                <div class="bg-paper border border-rule p-6 relative overflow-hidden hover:border-dim transition-colors duration-200 group">
+
+                    {{-- Decorative corner --}}
+                    <div class="pointer-events-none absolute top-3 right-3 h-6 w-6 border-t border-r border-rule group-hover:border-dim transition-colors duration-200"></div>
+
+                    {{-- Icon --}}
+                    <div class="w-9 h-9 bg-espresso flex items-center justify-center mb-4">
+                        <i class="fas fa-folder text-paper text-[0.65rem]"></i>
+                    </div>
+
+                    {{-- Content --}}
+                    <h3 class="font-serif text-ink text-xl font-normal leading-snug mb-2">
+                        {{ $item->nama_kategori }}
+                    </h3>
+                    <div class="h-px w-6 bg-rule mb-3"></div>
+                    <p class="font-sans text-[0.75rem] leading-relaxed tracking-wide text-label mb-5">
+                        {{ $item->deskripsi }}
+                    </p>
+
+                    {{-- Actions --}}
+                    <div class="flex items-center gap-2 pt-4 border-t border-rule">
+                        <button
+                            onclick="editKategori({{ $item->kategori_id }}, '{{ addslashes($item->nama_kategori) }}', '{{ addslashes($item->deskripsi) }}')"
+                            class="flex items-center gap-1.5 border border-rule px-3 py-1.5
+                                   font-sans text-[0.58rem] font-semibold tracking-[0.15em] uppercase text-label
+                                   hover:border-espresso hover:text-espresso transition-all duration-150"
+                        >
+                            <i class="fas fa-edit text-[0.6rem]"></i>
+                            <span>Edit</span>
                         </button>
-                        <form action="{{ route('kategori.destroy', $item->kategori_id) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus kategori ini?')">
+
+                        <form action="{{ route('kategori.destroy', $item->kategori_id) }}" method="POST"
+                              class="inline" onsubmit="return confirm('Yakin ingin menghapus kategori ini?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:text-red-900 font-medium">
-                                Hapus
+                            <button type="submit"
+                                class="w-7 h-7 flex items-center justify-center border border-rule text-ghost
+                                       hover:border-espresso hover:text-espresso transition-all duration-150">
+                                <i class="fas fa-trash text-[0.6rem]"></i>
                             </button>
                         </form>
                     </div>
+
                 </div>
             @endforeach
         </div>
+
     @else
-        <div class="bg-white rounded-lg shadow p-12 text-center">
-            <i class="fas fa-folder-open text-6xl text-gray-300 mb-4"></i>
-            <p class="text-gray-500 text-lg mb-2">Belum ada kategori</p>
-            <p class="text-gray-400 text-sm">Klik tombol "Tambah Kategori" untuk menambahkan kategori baru.</p>
+        {{-- Empty State --}}
+        <div class="bg-paper border border-rule p-16 text-center relative overflow-hidden">
+            <div class="pointer-events-none absolute top-5 right-5 h-9 w-9 border-t border-r border-rule"></div>
+            <div class="pointer-events-none absolute bottom-5 left-5 h-9 w-9 border-b border-l border-rule"></div>
+
+            <div class="w-12 h-12 bg-cream border border-rule flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-folder-open text-ghost text-base"></i>
+            </div>
+            <p class="font-serif text-ink text-lg font-normal mb-1">Belum ada kategori</p>
+            <p class="font-sans text-[0.7rem] text-label tracking-wide">
+                Klik tombol "Tambah Kategori" untuk menambahkan kategori baru.
+            </p>
         </div>
     @endif
 
-    <!-- Modal Tambah/Edit Kategori -->
-    <div id="kategoriModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="modalTitle" class="text-lg font-bold text-gray-900">Tambah Kategori</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times"></i>
+    {{-- ══ MODAL TAMBAH / EDIT KATEGORI ══ --}}
+    <div id="kategoriModal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4 py-8"
+         style="background:rgba(26,23,20,0.55)">
+        <div class="relative w-full max-w-sm bg-paper border border-rule shadow-2xl flex flex-col animate-fade-up">
+
+            {{-- Modal Header --}}
+            <div class="flex items-end justify-between px-8 pt-7 pb-5 border-b border-rule">
+                <div>
+                    <p class="font-sans text-[0.5rem] font-semibold tracking-[0.35em] uppercase text-label mb-1">
+                        Formulir
+                    </p>
+                    <h3 id="modalTitle" class="font-serif text-ink text-2xl font-normal leading-none">
+                        Tambah Kategori
+                    </h3>
+                </div>
+                <button onclick="closeModal()"
+                    class="w-7 h-7 flex items-center justify-center border border-rule text-ghost
+                           hover:border-espresso hover:text-ink transition-all duration-150 mb-0.5">
+                    <i class="fas fa-times text-[0.6rem]"></i>
                 </button>
             </div>
-            
-            <form id="kategoriForm" method="POST" action="{{ route('kategori.store') }}">
+
+            {{-- Modal Body --}}
+            <form id="kategoriForm" method="POST" action="{{ route('kategori.store') }}" class="px-8 py-6 space-y-6">
                 @csrf
                 <input type="hidden" id="methodField" name="_method" value="POST">
-                
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Kategori</label>
-                    <input type="text" id="nama_kategori" name="nama_kategori" required 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Contoh: Elektronik">
+
+                {{-- Nama Kategori --}}
+                <div class="relative">
+                    <label class="block font-sans text-[0.55rem] font-semibold tracking-[0.28em] uppercase text-label mb-2.5">
+                        Nama Kategori <span class="text-espresso">*</span>
+                    </label>
+                    <input
+                        type="text" id="nama_kategori" name="nama_kategori" required
+                        placeholder="Contoh: Elektronik"
+                        class="peer w-full bg-transparent border-b border-rule pb-2.5 pt-1 font-sans text-[0.85rem] text-ink outline-none placeholder-ghost/60 transition-colors duration-200 focus:border-ink"
+                    >
+                    <span class="absolute bottom-0 left-0 h-px w-0 bg-ink transition-all duration-300 peer-focus:w-full"></span>
                 </div>
 
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
-                    <textarea id="deskripsi" name="deskripsi" rows="4" required 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Deskripsi kategori"></textarea>
+                {{-- Deskripsi --}}
+                <div>
+                    <label class="block font-sans text-[0.55rem] font-semibold tracking-[0.28em] uppercase text-label mb-2.5">
+                        Deskripsi <span class="text-espresso">*</span>
+                    </label>
+                    <textarea
+                        id="deskripsi" name="deskripsi" rows="4" required
+                        placeholder="Deskripsi kategori"
+                        class="w-full bg-cream border border-rule px-3 py-2.5 font-sans text-[0.82rem] text-ink outline-none placeholder-ghost/60 focus:border-ink transition-colors duration-200 resize-none"
+                    ></textarea>
                 </div>
 
-                <div class="flex space-x-2">
-                    <button type="submit" 
-                        class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition">
+                {{-- Footer Buttons --}}
+                <div class="flex gap-3 pt-2 border-t border-rule">
+                    <button type="submit"
+                        class="flex-1 bg-espresso text-paper font-sans text-[0.6rem] font-semibold tracking-[0.25em] uppercase py-3.5 hover:bg-ink transition-colors duration-200">
                         Simpan
                     </button>
-                    <button type="button" onclick="closeModal()" 
-                        class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg transition">
+                    <button type="button" onclick="closeModal()"
+                        class="flex-1 border border-rule text-label font-sans text-[0.6rem] font-semibold tracking-[0.25em] uppercase py-3.5 hover:border-espresso hover:text-espresso transition-all duration-200">
                         Batal
                     </button>
                 </div>
             </form>
+
         </div>
     </div>
 
@@ -116,12 +198,10 @@
             document.getElementById('deskripsi').value = deskripsi;
         }
 
-        // Close modal when clicking outside
         window.onclick = function(event) {
             const modal = document.getElementById('kategoriModal');
-            if (event.target == modal) {
-                closeModal();
-            }
+            if (event.target == modal) closeModal();
         }
     </script>
+
 @endsection
