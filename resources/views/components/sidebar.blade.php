@@ -45,7 +45,7 @@
     }
 @endphp
 
-<aside class="w-60 flex-shrink-0 min-h-screen bg-espresso flex flex-col relative">
+<aside class="fixed left-0 top-[70px] bottom-0 z-30 w-60 flex-shrink-0 bg-espresso flex flex-col">
 
     {{-- Subtle right edge line --}}
     <div class="absolute right-0 top-0 bottom-0 w-px bg-white/[0.06]"></div>

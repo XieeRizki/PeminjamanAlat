@@ -44,19 +44,19 @@
 </head>
 <body class="bg-cream font-sans min-h-screen">
 
-    {{-- Header --}}
+    {{-- Header Fixed --}}
     <x-header />
 
-    <div class="flex min-h-[calc(100vh-57px)]">
-
-        {{-- Sidebar --}}
+    <div class="flex pt-[70px]">
+        {{-- Sidebar Fixed --}}
         <x-sidebar />
 
-        {{-- Main Content --}}
-        <main class="flex-1 p-8 overflow-auto">
-            @yield('content')
+        {{-- Main Content Scrollable --}}
+        <main class="flex-1 ml-60 overflow-auto">
+            <div class="p-8">
+                @yield('content')
+            </div>
         </main>
-
     </div>
 
 </body>

@@ -47,7 +47,7 @@ class PengembalianController extends Controller
                 'keterlambatan_hari' => $keterlambatan,
                 'tarif_denda_per_hari' => $tarifDenda,
                 'total_denda' => $totalDenda,
-                'status_denda' => $totalDenda > 0 ? 'belum_lunas' : 'lunas', // ✅ Fix: pakai belum_lunas (dengan underscore)
+                'status_denda' => $totalDenda > 0 ? 'belum_lunas' : 'lunas', // pakai belum_lunas (dengan underscore)
                 'keterangan' => $validated['keterangan'],
             ]);
 

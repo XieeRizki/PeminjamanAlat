@@ -1,4 +1,4 @@
-<header class="bg-espresso border-b border-white/[0.07] relative">
+<header class="fixed top-0 left-0 right-0 z-40 bg-espresso border-b border-white/[0.07]">
 
     {{-- Subtle top accent line --}}
     <div class="h-[1px] w-full bg-gradient-to-r from-transparent via-rule/30 to-transparent"></div>
