@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('user_id', 'fk_peminjaman_user')
-                  ->references('id')->on('users')
+                  ->references('user_id')->on('users')
                   ->onUpdate('cascade')
                   ->onDelete('restrict');
 
@@ -32,7 +32,7 @@ return new class extends Migration
                   ->onDelete('restrict');
 
             $table->foreign('disetujui_oleh', 'fk_peminjaman_disetujui')
-                  ->references('id')->on('users')
+                  ->references('user_id')->on('users')
                   ->onUpdate('cascade')
                   ->onDelete('set null');
 
