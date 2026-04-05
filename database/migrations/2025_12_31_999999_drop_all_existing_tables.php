@@ -24,6 +24,12 @@ return new class extends Migration
             'cache',
             'jobs',
             'migrations',
+            // Laravel default tables
+            'password_reset_tokens',
+            'failed_jobs',
+            'job_batches',
+            'personal_access_tokens',
+            'notifications',
         ];
 
         foreach ($tables as $table) {
