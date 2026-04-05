@@ -42,7 +42,7 @@
         }
     </script>
 </head>
-<body class="bg-cream font-sans min-h-screen overflow-hidden">
+<body class="bg-cream font-sans min-h-screen">
 
     {{-- Header --}}
     <x-header />
@@ -50,13 +50,13 @@
     {{-- Mobile overlay backdrop --}}
     <div id="sidebarBackdrop" class="hidden fixed inset-0 bg-black/50 z-20 md:hidden" onclick="toggleSidebar()"></div>
 
-    <div class="flex pt-[70px]">
+    <div class="flex pt-[70px] min-h-[calc(100vh-70px)]">
         {{-- Sidebar --}}
         <x-sidebar />
 
         {{-- Main Content --}}
-        <main class="flex-1 w-full md:ml-60 h-screen overflow-y-auto overflow-x-hidden">
-            <div class="p-4 md:p-8 min-h-full">
+        <main class="flex-1 w-full md:ml-60 overflow-y-auto">
+            <div class="p-4 md:p-8">
                 @yield('content')
             </div>
         </main>
