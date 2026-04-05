@@ -7,26 +7,22 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('peminjaman', function (Blueprint $table) {
             $table->increments('peminjaman_id');
-            $table->unsignedInteger('user_id');
+            $table->unsignedBigInteger('user_id');       // FK ke users.id (Laravel default bigint)
             $table->unsignedInteger('alat_id');
             $table->integer('jumlah');
             $table->date('tanggal_peminjaman');
             $table->date('tanggal_kembali_rencana');
             $table->text('tujuan_peminjaman')->nullable();
-            $table->unsignedInteger('disetujui_oleh')->nullable();
+            $table->unsignedBigInteger('disetujui_oleh')->nullable(); // FK ke users.id
             $table->timestamp('tanggal_disetujui')->nullable();
-            $table->timestamps(); // created_at & updated_at
+            $table->timestamps();
 
-            // Foreign keys
             $table->foreign('user_id', 'fk_peminjaman_user')
-                  ->references('user_id')->on('users')
+                  ->references('id')->on('users')
                   ->onUpdate('cascade')
                   ->onDelete('restrict');
 
@@ -36,22 +32,16 @@ return new class extends Migration
                   ->onDelete('restrict');
 
             $table->foreign('disetujui_oleh', 'fk_peminjaman_disetujui')
-                  ->references('user_id')->on('users')
+                  ->references('id')->on('users')
                   ->onUpdate('cascade')
                   ->onDelete('set null');
 
-            // Indexes
             $table->index('user_id', 'idx_peminjaman_user');
             $table->index('alat_id', 'idx_peminjaman_alat');
         });
 
-        // Tambahkan kolom status dengan ENUM PostgreSQL
         DB::statement("ALTER TABLE peminjaman ADD COLUMN status status_peminjaman DEFAULT 'menunggu'::status_peminjaman");
-
-        // Index untuk kolom status
         DB::statement("CREATE INDEX idx_peminjaman_status ON peminjaman USING btree (status)");
-
-        // Trigger: auto-update updated_at
         DB::statement("
             CREATE TRIGGER update_peminjaman_updated_at
             BEFORE UPDATE ON peminjaman
@@ -59,9 +49,6 @@ return new class extends Migration
         ");
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('peminjaman');
