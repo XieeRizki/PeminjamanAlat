@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Alat;
 use App\Models\Kategori;
+use App\Models\PengembalianDetail;
 use App\Models\LogAktivitas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,8 +14,25 @@ class AlatController extends Controller
     public function index()
     {
         $alats = Alat::with('kategori')->get();
+        
+        // ✅ NEW: Count barang kondisi per alat dari pengembalian_detail
+        $alatStats = [];
+        foreach ($alats as $alat) {
+            $alatStats[$alat->alat_id] = [
+                'baik' => PengembalianDetail::whereHas('pengembalian.peminjaman', function($q) use ($alat) {
+                    $q->where('alat_id', $alat->alat_id);
+                })->where('kondisi_alat', 'baik')->sum('jumlah'),
+                'rusak' => PengembalianDetail::whereHas('pengembalian.peminjaman', function($q) use ($alat) {
+                    $q->where('alat_id', $alat->alat_id);
+                })->where('kondisi_alat', 'rusak')->sum('jumlah'),
+                'hilang' => PengembalianDetail::whereHas('pengembalian.peminjaman', function($q) use ($alat) {
+                    $q->where('alat_id', $alat->alat_id);
+                })->where('kondisi_alat', 'hilang')->sum('jumlah'),
+            ];
+        }
+        
         $userLevel = Auth::user()->level;
-        return view('pages.alat.index', compact('alats', 'userLevel'));
+        return view('pages.alat.index', compact('alats', 'userLevel', 'alatStats'));
     }
 
     public function create()
@@ -34,8 +52,8 @@ class AlatController extends Controller
             'stok_total' => 'required|integer|min:1',
             'kondisi' => 'required|in:baik,rusak,hilang',
             'lokasi' => 'nullable|string',
-            'harga_alat' => 'required|numeric|min:0',                    // ✅ NEW
-            'persen_denda_rusak' => 'required|integer|min:0|max:100',    // ✅ NEW
+            'harga_alat' => 'required|numeric|min:0',
+            'persen_denda_rusak' => 'required|integer|min:0|max:100',
         ]);
 
         $validated['stok_tersedia'] = $validated['stok_total'];
@@ -69,8 +87,8 @@ class AlatController extends Controller
             'stok_total' => 'required|integer|min:1',
             'kondisi' => 'required|in:baik,rusak,hilang',
             'lokasi' => 'nullable|string',
-            'harga_alat' => 'required|numeric|min:0',                    // ✅ NEW
-            'persen_denda_rusak' => 'required|integer|min:0|max:100',    // ✅ NEW
+            'harga_alat' => 'required|numeric|min:0',
+            'persen_denda_rusak' => 'required|integer|min:0|max:100',
         ]);
 
         $alat->update($validated);

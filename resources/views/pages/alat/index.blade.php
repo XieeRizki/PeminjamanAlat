@@ -218,6 +218,36 @@
                             @endif
                         </div>
 
+                        {{-- ✅ NEW: Breakdown Kondisi Barang --}}
+                        <div class="bg-cream p-3 space-y-2">
+                            <p class="font-sans text-[0.58rem] font-semibold tracking-[0.2em] uppercase text-label mb-2">
+                                📊 Status Barang (Pengembalian)
+                            </p>
+                            <div class="space-y-1.5 text-[0.65rem]">
+                                <div class="flex items-center justify-between">
+                                    <span class="flex items-center gap-2">
+                                        <span class="w-2 h-2 bg-ink rounded-full"></span>
+                                        <span class="text-label">Baik</span>
+                                    </span>
+                                    <span class="font-semibold text-ink">{{ $alatStats[$alat->alat_id]['baik'] ?? 0 }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="flex items-center gap-2">
+                                        <span class="w-2 h-2 bg-dim rounded-full"></span>
+                                        <span class="text-label">Rusak</span>
+                                    </span>
+                                    <span class="font-semibold text-dim">{{ $alatStats[$alat->alat_id]['rusak'] ?? 0 }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="flex items-center gap-2">
+                                        <span class="w-2 h-2 bg-espresso rounded-full"></span>
+                                        <span class="text-label">Hilang</span>
+                                    </span>
+                                    <span class="font-semibold text-espresso">{{ $alatStats[$alat->alat_id]['hilang'] ?? 0 }}</span>
+                                </div>
+                            </div>
+                        </div>
+
                         {{-- ✅ NEW: Harga Info --}}
                         <div class="bg-espresso/5 border border-espresso/20 p-2.5 rounded">
                             <p class="font-sans text-[0.6rem] text-label mb-1">💰 Harga & Denda:</p>
@@ -314,7 +344,7 @@
                     {{-- Nama Alat --}}
                     <div class="relative">
                         <label class="block font-sans text-[0.55rem] font-semibold tracking-[0.28em] uppercase text-label mb-2.5">
-                            Nama Alat
+                            Nama Alat <span class="text-espresso">*</span>
                         </label>
                         <input
                             type="text" id="nama_alat" name="nama_alat" required
@@ -330,12 +360,12 @@
                         {{-- Kategori --}}
                         <div>
                             <label class="block font-sans text-[0.55rem] font-semibold tracking-[0.28em] uppercase text-label mb-2.5">
-                                Kategori
+                                Kategori <span class="text-espresso">*</span>
                             </label>
                             <div class="relative">
                                 <select
                                     id="kategori_id" name="kategori_id" required
-                                    class="w-full appearance-none bg-cream border border-rule px-3 py-2.5 font-sans text-[0.8rem] text-ink outline-none focus:border-ink transition-colors duration-200 cursor-pointer"
+                                    class="w-full appearance-none bg-cream border border-rule px-3 py-2.5 font-sans text-[0.8rem] text-ink outline-none focus:border-ink transition-colors duration-200"
                                 >
                                     <option value="">Pilih Kategori</option>
                                     @foreach(\App\Models\Kategori::all() as $kat)
@@ -349,12 +379,12 @@
                         {{-- Kondisi --}}
                         <div>
                             <label class="block font-sans text-[0.55rem] font-semibold tracking-[0.28em] uppercase text-label mb-2.5">
-                                Kondisi
+                                Kondisi <span class="text-espresso">*</span>
                             </label>
                             <div class="relative">
                                 <select
                                     id="kondisi" name="kondisi" required
-                                    class="w-full appearance-none bg-cream border border-rule px-3 py-2.5 font-sans text-[0.8rem] text-ink outline-none focus:border-ink transition-colors duration-200 cursor-pointer"
+                                    class="w-full appearance-none bg-cream border border-rule px-3 py-2.5 font-sans text-[0.8rem] text-ink outline-none focus:border-ink transition-colors duration-200"
                                 >
                                     <option value="">Pilih Kondisi</option>
                                     <option value="baik">Baik</option>
@@ -373,7 +403,7 @@
                         {{-- Kode Alat --}}
                         <div class="relative">
                             <label class="block font-sans text-[0.55rem] font-semibold tracking-[0.28em] uppercase text-label mb-2.5">
-                                Kode Alat
+                                Kode Alat <span class="text-espresso">*</span>
                             </label>
                             <input
                                 type="text" id="kode_alat" name="kode_alat" required
@@ -386,7 +416,7 @@
                         {{-- Stok Total --}}
                         <div class="relative">
                             <label class="block font-sans text-[0.55rem] font-semibold tracking-[0.28em] uppercase text-label mb-2.5">
-                                Stok Total
+                                Stok Total <span class="text-espresso">*</span>
                             </label>
                             <input
                                 type="number" id="stok_total" name="stok_total" min="1" required
@@ -419,7 +449,7 @@
                         <textarea
                             id="deskripsi" name="deskripsi" rows="3"
                             placeholder="Deskripsi singkat mengenai alat ini"
-                            class="w-full bg-cream border border-rule px-3 py-2.5 font-sans text-[0.82rem] text-ink outline-none placeholder-ghost/60 focus:border-ink transition-colors duration-200 resize-none"
+                            class="w-full bg-cream border border-rule px-3 py-2.5 font-sans text-[0.82rem] text-ink outline-none placeholder-ghost/60 focus:border-ink transition-colors duration-200"
                         ></textarea>
                     </div>
 
@@ -475,7 +505,7 @@
                     </button>
                     <button
                         type="button" onclick="closeModal()"
-                        class="flex-1 border border-rule text-label font-sans text-[0.6rem] font-semibold tracking-[0.25em] uppercase py-3.5 hover:border-espresso hover:text-espresso transition-all duration-200"
+                        class="flex-1 border border-rule text-label font-sans text-[0.6rem] font-semibold tracking-[0.25em] uppercase py-3.5 hover:border-espresso hover:text-espresso transition-all duration-150"
                     >
                         Batal
                     </button>
@@ -518,7 +548,6 @@
             document.getElementById('kondisi').value = data.kondisi;
             document.getElementById('lokasi').value = data.lokasi || '';
             document.getElementById('deskripsi').value = data.deskripsi || '';
-            // ✅ NEW: Set harga & persentase
             document.getElementById('harga_alat').value = data.harga_alat || 0;
             document.getElementById('persen_denda_rusak').value = data.persen_denda_rusak || 30;
         }
