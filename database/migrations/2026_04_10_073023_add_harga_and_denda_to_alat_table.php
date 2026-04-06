@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         // ✅ UPDATE TABEL ALAT
@@ -26,19 +23,15 @@ return new class extends Migration
                     ->after('harga_alat')
                     ->comment('Persentase denda jika alat rusak (0-100)');
             }
-
-            if (!Schema::hasIndex('alat', 'harga_alat')) {
-                $table->index('harga_alat');
-            }
         });
 
-        // ✅ UPDATE TABEL PENGEMBALIAN - TAMBAH KOLOM DENDA
+        // ✅ UPDATE TABEL PENGEMBALIAN
         Schema::table('pengembalian', function (Blueprint $table) {
             if (!Schema::hasColumn('pengembalian', 'denda_keterlambatan')) {
                 $table->decimal('denda_keterlambatan', 14, 2)
                     ->default(0)
                     ->after('tarif_denda_per_hari')
-                    ->comment('Denda keterlambatan per hari × jumlah hari');
+                    ->comment('Denda keterlambatan');
             }
 
             if (!Schema::hasColumn('pengembalian', 'denda_barang')) {
@@ -50,22 +43,24 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('alat', function (Blueprint $table) {
-            if (Schema::hasIndex('alat', 'harga_alat')) {
-                $table->dropIndex('harga_alat');
+            if (Schema::hasColumn('alat', 'harga_alat')) {
+                $table->dropColumn('harga_alat');
             }
-            $table->dropColumnIfExists('harga_alat');
-            $table->dropColumnIfExists('persen_denda_rusak');
+            if (Schema::hasColumn('alat', 'persen_denda_rusak')) {
+                $table->dropColumn('persen_denda_rusak');
+            }
         });
 
         Schema::table('pengembalian', function (Blueprint $table) {
-            $table->dropColumnIfExists('denda_keterlambatan');
-            $table->dropColumnIfExists('denda_barang');
+            if (Schema::hasColumn('pengembalian', 'denda_keterlambatan')) {
+                $table->dropColumn('denda_keterlambatan');
+            }
+            if (Schema::hasColumn('pengembalian', 'denda_barang')) {
+                $table->dropColumn('denda_barang');
+            }
         });
     }
 };
