@@ -28,14 +28,8 @@ class PengembalianDetail extends Model
         'denda_barang' => 'decimal:2',
     ];
 
-    // Relationships
     public function pengembalian()
     {
         return $this->belongsTo(Pengembalian::class, 'pengembalian_id', 'pengembalian_id');
-    }
-
-    public function getDendaBarangFormatAttribute()
-    {
-        return 'Rp ' . number_format($this->denda_barang, 0, ',', '.');
     }
 }

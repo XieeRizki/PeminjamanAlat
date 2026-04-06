@@ -32,7 +32,6 @@ class Pengembalian extends Model
         'total_denda' => 'decimal:2',
     ];
 
-    // Relationships
     public function peminjaman()
     {
         return $this->belongsTo(Peminjaman::class, 'peminjaman_id', 'peminjaman_id');
@@ -46,15 +45,5 @@ class Pengembalian extends Model
     public function getRouteKeyName()
     {
         return 'pengembalian_id';
-    }
-
-    public function getDendaKeterlambatanFormatAttribute()
-    {
-        return 'Rp ' . number_format($this->denda_keterlambatan, 0, ',', '.');
-    }
-
-    public function getTotalDendaFormatAttribute()
-    {
-        return 'Rp ' . number_format($this->total_denda, 0, ',', '.');
     }
 }
