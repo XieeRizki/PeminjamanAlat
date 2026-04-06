@@ -35,10 +35,10 @@ class AlatController extends Controller
                 })->where('kondisi_alat', 'hilang')->sum('jumlah'),
             ];
             
-            // ✅ Hitung barang yang sedang dipinjam (status = disetujui, belum dikembalikan)
+            // ✅ FIXED: Hitung barang yang sedang dipinjam (status = disetujui, belum ada pengembalian)
             $alatDipinjam[$alat->alat_id] = Peminjaman::where('alat_id', $alat->alat_id)
                 ->where('status', 'disetujui')
-                ->whereDoesntHave('pengembalian')
+                ->whereDoesntHave('pengembalian') // Belum ada pengembalian
                 ->sum('jumlah');
         }
         

@@ -122,7 +122,7 @@ class PeminjamanController extends Controller
             'status' => 'required|in:disetujui,ditolak',
         ]);
 
-        // ✅ NEW: Handle stock change saat approve/reject
+        // ✅ FIXED: Handle stock change saat approve/reject
         if ($validated['status'] == 'disetujui' && $peminjaman->status == 'menunggu') {
             // Approve: kurangi stok
             DB::transaction(function () use ($peminjaman, $validated) {
@@ -155,7 +155,7 @@ class PeminjamanController extends Controller
 
     public function approve(Request $request, Peminjaman $peminjaman)
     {
-        // ✅ NEW: Handle stock change saat approve
+        // ✅ FIXED: Handle stock change saat approve
         DB::transaction(function () use ($peminjaman) {
             // Kurangi stok jika belum disetujui
             if ($peminjaman->status == 'menunggu') {
@@ -181,7 +181,7 @@ class PeminjamanController extends Controller
 
     public function destroy(Peminjaman $peminjaman)
     {
-        // ✅ NEW: Kembalikan stok jika peminjaman belum disetujui
+        // ✅ FIXED: Kembalikan stok jika peminjaman dihapus
         DB::transaction(function () use ($peminjaman) {
             if ($peminjaman->status == 'menunggu') {
                 // Jika masih menunggu, tidak perlu kembalikan stok (belum dikurangi)
