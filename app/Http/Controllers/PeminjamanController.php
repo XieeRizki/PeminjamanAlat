@@ -6,6 +6,7 @@ use App\Models\Peminjaman;
 use App\Models\Alat;
 use App\Models\LogAktivitas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PeminjamanController extends Controller
 {
@@ -121,11 +122,26 @@ class PeminjamanController extends Controller
             'status' => 'required|in:disetujui,ditolak',
         ]);
 
-        $peminjaman->update([
-            'status' => $validated['status'],
-            'disetujui_oleh' => auth()->id(),
-            'tanggal_disetujui' => now(),
-        ]);
+        // ✅ NEW: Handle stock change saat approve/reject
+        if ($validated['status'] == 'disetujui' && $peminjaman->status == 'menunggu') {
+            // Approve: kurangi stok
+            DB::transaction(function () use ($peminjaman, $validated) {
+                $peminjaman->alat->decrement('stok_tersedia', $peminjaman->jumlah);
+                
+                $peminjaman->update([
+                    'status' => $validated['status'],
+                    'disetujui_oleh' => auth()->id(),
+                    'tanggal_disetujui' => now(),
+                ]);
+            });
+        } else if ($validated['status'] == 'ditolak' && $peminjaman->status == 'menunggu') {
+            // Reject: jangan ubah stok
+            $peminjaman->update([
+                'status' => $validated['status'],
+                'disetujui_oleh' => auth()->id(),
+                'tanggal_disetujui' => now(),
+            ]);
+        }
 
         LogAktivitas::create([
             'user_id' => auth()->id(),
@@ -139,11 +155,19 @@ class PeminjamanController extends Controller
 
     public function approve(Request $request, Peminjaman $peminjaman)
     {
-        $peminjaman->update([
-            'status' => 'disetujui',
-            'disetujui_oleh' => auth()->id(),
-            'tanggal_disetujui' => now(),
-        ]);
+        // ✅ NEW: Handle stock change saat approve
+        DB::transaction(function () use ($peminjaman) {
+            // Kurangi stok jika belum disetujui
+            if ($peminjaman->status == 'menunggu') {
+                $peminjaman->alat->decrement('stok_tersedia', $peminjaman->jumlah);
+            }
+            
+            $peminjaman->update([
+                'status' => 'disetujui',
+                'disetujui_oleh' => auth()->id(),
+                'tanggal_disetujui' => now(),
+            ]);
+        });
 
         LogAktivitas::create([
             'user_id' => auth()->id(),
@@ -157,7 +181,17 @@ class PeminjamanController extends Controller
 
     public function destroy(Peminjaman $peminjaman)
     {
-        $peminjaman->delete();
+        // ✅ NEW: Kembalikan stok jika peminjaman belum disetujui
+        DB::transaction(function () use ($peminjaman) {
+            if ($peminjaman->status == 'menunggu') {
+                // Jika masih menunggu, tidak perlu kembalikan stok (belum dikurangi)
+            } else if ($peminjaman->status == 'disetujui' && !$peminjaman->pengembalian) {
+                // Jika sudah disetujui tapi belum dikembalikan, kembalikan stok
+                $peminjaman->alat->increment('stok_tersedia', $peminjaman->jumlah);
+            }
+            
+            $peminjaman->delete();
+        });
 
         LogAktivitas::create([
             'user_id' => auth()->id(),

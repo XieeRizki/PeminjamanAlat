@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Alat;
 use App\Models\Kategori;
 use App\Models\PengembalianDetail;
+use App\Models\Peminjaman;
 use App\Models\LogAktivitas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,11 @@ class AlatController extends Controller
         
         // ✅ NEW: Count barang kondisi per alat dari pengembalian_detail
         $alatStats = [];
+        // ✅ NEW: Count barang yang sedang dipinjam
+        $alatDipinjam = [];
+        
         foreach ($alats as $alat) {
+            // Status barang dari pengembalian
             $alatStats[$alat->alat_id] = [
                 'baik' => PengembalianDetail::whereHas('pengembalian.peminjaman', function($q) use ($alat) {
                     $q->where('alat_id', $alat->alat_id);
@@ -29,10 +34,16 @@ class AlatController extends Controller
                     $q->where('alat_id', $alat->alat_id);
                 })->where('kondisi_alat', 'hilang')->sum('jumlah'),
             ];
+            
+            // ✅ NEW: Hitung barang yang sedang dipinjam (status = disetujui, belum dikembalikan)
+            $alatDipinjam[$alat->alat_id] = Peminjaman::where('alat_id', $alat->alat_id)
+                ->where('status', 'disetujui')
+                ->whereDoesntHave('pengembalian')
+                ->sum('jumlah');
         }
         
         $userLevel = Auth::user()->level;
-        return view('pages.alat.index', compact('alats', 'userLevel', 'alatStats'));
+        return view('pages.alat.index', compact('alats', 'userLevel', 'alatStats', 'alatDipinjam'));
     }
 
     public function create()
@@ -43,7 +54,6 @@ class AlatController extends Controller
 
     public function store(Request $request)
     {
-        // ✅ UPDATED: Validasi tambahan untuk harga & persentase
         $validated = $request->validate([
             'kategori_id' => 'required|exists:kategori,kategori_id',
             'nama_alat' => 'required|string|max:255',
@@ -78,7 +88,6 @@ class AlatController extends Controller
 
     public function update(Request $request, Alat $alat)
     {
-        // ✅ UPDATED: Validasi tambahan untuk harga & persentase
         $validated = $request->validate([
             'kategori_id' => 'required|exists:kategori,kategori_id',
             'nama_alat' => 'required|string|max:255',

@@ -218,6 +218,17 @@
                             @endif
                         </div>
 
+                        {{-- ✅ NEW: Barang Sedang Dipinjam --}}
+                        <div class="bg-dim/5 p-3 space-y-2">
+                            <p class="font-sans text-[0.58rem] font-semibold tracking-[0.2em] uppercase text-label mb-2">
+                                📤 Sedang Dipinjam
+                            </p>
+                            <div class="flex items-center justify-between">
+                                <span class="font-sans text-[0.65rem] text-label">Jumlah:</span>
+                                <span class="font-semibold text-dim text-[0.8rem]">{{ $alatDipinjam[$alat->alat_id] ?? 0 }} unit</span>
+                            </div>
+                        </div>
+
                         {{-- ✅ NEW: Breakdown Kondisi Barang --}}
                         <div class="bg-cream p-3 space-y-2">
                             <p class="font-sans text-[0.58rem] font-semibold tracking-[0.2em] uppercase text-label mb-2">
