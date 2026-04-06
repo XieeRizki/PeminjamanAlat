@@ -30,12 +30,10 @@ class PeminjamanController extends Controller
 
         $alat = Alat::find($validated['alat_id']);
 
-        // Validasi stok
         if ($validated['jumlah'] > $alat->stok_tersedia) {
             return back()->withErrors(['jumlah' => 'Stok tidak cukup untuk alat ini. Maksimal: ' . $alat->stok_tersedia . ' unit']);
         }
 
-        // Buat peminjaman dengan kode otomatis
         $peminjaman = Peminjaman::create([
             'user_id' => null,
             'alat_id' => $validated['alat_id'],
@@ -60,7 +58,6 @@ class PeminjamanController extends Controller
         $user = auth()->user();
 
         if ($user->role === 'peminjam') {
-            // Peminjam hanya lihat peminjaman miliknya sendiri
             $peminjaman = Peminjaman::where('user_id', $user->user_id)
                 ->with('alat', 'petugas', 'user')
                 ->latest()
@@ -68,17 +65,12 @@ class PeminjamanController extends Controller
             return view('pages.peminjaman.index-peminjam', compact('peminjaman'));
         }
 
-        if ($user->role === 'petugas' || $user->role === 'admin') {
-            // Petugas & Admin lihat SEMUA peminjaman (termasuk guest)
-            $allPeminjaman = Peminjaman::with('alat', 'user', 'petugas')
-                ->latest()
-                ->get();
+        // Admin & Petugas lihat semua peminjaman (termasuk guest)
+        $allPeminjaman = Peminjaman::with('alat', 'user', 'petugas')
+            ->latest()
+            ->get();
 
-            return view('pages.peminjaman.index-petugas', compact('allPeminjaman'));
-        }
-
-        // Fallback jika role tidak dikenali
-        abort(403, 'Akses tidak diizinkan.');
+        return view('pages.peminjaman.index-petugas', compact('allPeminjaman'));
     }
 
     public function create()
