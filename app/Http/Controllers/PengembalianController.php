@@ -34,20 +34,35 @@ class PengembalianController extends Controller
 
     public function store(Request $request)
     {
+        // ✅ FIXED: Allow 0 values, filter them later
         $validated = $request->validate([
             'peminjaman_id' => 'required|exists:peminjaman,peminjaman_id',
             'tanggal_kembali_aktual' => 'required|date',
             'kondisi_details' => 'required|array',
             'kondisi_details.*.kondisi' => 'required|in:baik,rusak,hilang',
-            'kondisi_details.*.jumlah' => 'required|integer|min:1',
+            'kondisi_details.*.jumlah' => 'required|integer|min:0', // ✅ Changed: min:0 instead of min:1
             'keterangan' => 'nullable|string',
         ]);
 
         $peminjaman = Peminjaman::findOrFail($request->peminjaman_id);
         $alat = $peminjaman->alat;
 
+        // ✅ Filter out items with jumlah = 0
+        $kondisiDetails = array_filter($validated['kondisi_details'], function($item) {
+            return $item['jumlah'] > 0;
+        });
+
+        // ✅ Reindex array after filtering
+        $kondisiDetails = array_values($kondisiDetails);
+
+        if (empty($kondisiDetails)) {
+            return redirect()->back()
+                ->withErrors(['kondisi_details' => "Minimal ada 1 barang yang dikembalikan"])
+                ->withInput();
+        }
+
         $totalJumlahDikembalikan = 0;
-        foreach ($validated['kondisi_details'] as $detail) {
+        foreach ($kondisiDetails as $detail) {
             $totalJumlahDikembalikan += $detail['jumlah'];
         }
 
@@ -66,8 +81,10 @@ class PengembalianController extends Controller
 
         $persenDendaRusak = $alat->persen_denda_rusak ?? 30;
 
+        // ✅ FIXED: Add $validated to use()
         DB::transaction(function () use (
             $validated,
+            $kondisiDetails,
             $peminjaman,
             $alat,
             $keterlambatan,
@@ -90,7 +107,7 @@ class PengembalianController extends Controller
             $totalDendaBarang = 0;
             $jumlahBaik = 0;
 
-            foreach ($validated['kondisi_details'] as $detail) {
+            foreach ($kondisiDetails as $detail) {
                 $kondisi = $detail['kondisi'];
                 $jumlah = $detail['jumlah'];
                 $dendaDetail = 0;
@@ -128,7 +145,7 @@ class PengembalianController extends Controller
                 $alat->increment('stok_tersedia', $jumlahBaik);
             }
 
-            $hasRusakOrHilang = collect($validated['kondisi_details'])
+            $hasRusakOrHilang = collect($kondisiDetails)
                 ->whereIn('kondisi', ['rusak', 'hilang'])
                 ->isNotEmpty();
                 
@@ -147,7 +164,7 @@ class PengembalianController extends Controller
         return redirect()->route('pengembalian.index')->with('success', 'Pengembalian berhasil diproses!');
     }
 
-    // ✅ NEW: Bayar Denda
+    // ✅ Bayar Denda
     public function bayar(Request $request)
     {
         $validated = $request->validate([
