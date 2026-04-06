@@ -72,10 +72,13 @@ class PeminjamanController extends Controller
             // Petugas & Admin lihat SEMUA peminjaman (termasuk guest)
             $allPeminjaman = Peminjaman::with('alat', 'user', 'petugas')
                 ->latest()
-                ->get(); // ✅ Pakai get() bukan paginate()
-            
+                ->get();
+
             return view('pages.peminjaman.index-petugas', compact('allPeminjaman'));
         }
+
+        // Fallback jika role tidak dikenali
+        abort(403, 'Akses tidak diizinkan.');
     }
 
     public function create()

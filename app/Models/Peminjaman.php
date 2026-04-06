@@ -44,7 +44,7 @@ class Peminjaman extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($model) {
             if (!$model->kode_peminjaman) {
                 $model->kode_peminjaman = self::generateKodePeminjaman();
@@ -58,13 +58,13 @@ class Peminjaman extends Model
         $date = now()->format('Ymd');
         $random = strtoupper(Str::random(5));
         $kode = "PMJ-{$date}-{$random}";
-        
+
         // Jika sudah ada, generate ulang
         while (self::where('kode_peminjaman', $kode)->exists()) {
             $random = strtoupper(Str::random(5));
             $kode = "PMJ-{$date}-{$random}";
         }
-        
+
         return $kode;
     }
 
