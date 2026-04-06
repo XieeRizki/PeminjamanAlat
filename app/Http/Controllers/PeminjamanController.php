@@ -69,10 +69,10 @@ class PeminjamanController extends Controller
         }
 
         if ($user->role === 'petugas' || $user->role === 'admin') {
-            // Petugas & Admin lihat SEMUA peminjaman (termasuk guest) - gunakan GET, bukan paginate
+            // Petugas & Admin lihat SEMUA peminjaman (termasuk guest)
             $allPeminjaman = Peminjaman::with('alat', 'user', 'petugas')
                 ->latest()
-                ->get(); // ← UBAH dari paginate(15) ke get()
+                ->get(); // ✅ Pakai get() bukan paginate()
             
             return view('pages.peminjaman.index-petugas', compact('allPeminjaman'));
         }
